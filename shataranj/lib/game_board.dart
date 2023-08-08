@@ -64,47 +64,79 @@ class _GameBoardState extends State<GameBoard> {
     //Place rooks
 
     newBoard[0][0] = ChessPiece(
-        type: ChessPieceType.rook, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.rook,
+        isWhite: false,
+        imagePath: 'lib/images/rook.png');
     newBoard[0][7] = ChessPiece(
-        type: ChessPieceType.rook, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.rook,
+        isWhite: false,
+        imagePath: 'lib/images/rook.png');
     newBoard[7][0] = ChessPiece(
-        type: ChessPieceType.rook, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.rook,
+        isWhite: true,
+        imagePath: 'lib/images/rook.png');
     newBoard[7][7] = ChessPiece(
-        type: ChessPieceType.rook, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.rook,
+        isWhite: true,
+        imagePath: 'lib/images/rook.png');
     //Place knights
 
     newBoard[0][1] = ChessPiece(
-        type: ChessPieceType.knight, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.knight,
+        isWhite: false,
+        imagePath: 'lib/images/knight.png');
     newBoard[0][6] = ChessPiece(
-        type: ChessPieceType.knight, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.knight,
+        isWhite: false,
+        imagePath: 'lib/images/knight.png');
     newBoard[7][1] = ChessPiece(
-        type: ChessPieceType.knight, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.knight,
+        isWhite: true,
+        imagePath: 'lib/images/knight.png');
     newBoard[7][6] = ChessPiece(
-        type: ChessPieceType.knight, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.knight,
+        isWhite: true,
+        imagePath: 'lib/images/knight.png');
     //Place bishops
 
     newBoard[0][2] = ChessPiece(
-        type: ChessPieceType.bishop, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.bishop,
+        isWhite: false,
+        imagePath: 'lib/images/bishop.png');
     newBoard[0][5] = ChessPiece(
-        type: ChessPieceType.bishop, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.bishop,
+        isWhite: false,
+        imagePath: 'lib/images/bishop.png');
     newBoard[7][2] = ChessPiece(
-        type: ChessPieceType.bishop, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.bishop,
+        isWhite: true,
+        imagePath: 'lib/images/bishop.png');
     newBoard[7][5] = ChessPiece(
-        type: ChessPieceType.bishop, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.bishop,
+        isWhite: true,
+        imagePath: 'lib/images/bishop.png');
 
     //Place queens
 
     newBoard[0][3] = ChessPiece(
-        type: ChessPieceType.queen, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.queen,
+        isWhite: false,
+        imagePath: 'lib/images/queen.png');
     newBoard[7][4] = ChessPiece(
-        type: ChessPieceType.queen, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.queen,
+        isWhite: true,
+        imagePath: 'lib/images/queen.png');
 
     //Place Kings
 
     newBoard[0][4] = ChessPiece(
-        type: ChessPieceType.king, isWhite: false, imagePath: imagePath);
+        type: ChessPieceType.king,
+        isWhite: false,
+        imagePath: 'lib/images/king.png');
     newBoard[7][3] = ChessPiece(
-        type: ChessPieceType.king, isWhite: true, imagePath: imagePath);
+        type: ChessPieceType.king,
+        isWhite: true,
+        imagePath: 'lib/images/king.png');
 
     board = newBoard;
   }
@@ -120,7 +152,7 @@ class _GameBoardState extends State<GameBoard> {
       }
 
       //if a piece is selected, calculate it's valid moves
-      validMoves = calculateRowValidMoves();
+      validMoves = calculateRowValidMoves(selectedRow, selectedCol, selectedPiece);
     });
   }
 
@@ -227,7 +259,7 @@ class _GameBoardState extends State<GameBoard> {
         ];
 
         for (var direction in directions) {
-          var i = 0;
+          var i = 1;
           while (true) {
             var newRow = row + i * direction[0];
             var newCol = col + i * direction[1];
@@ -246,8 +278,64 @@ class _GameBoardState extends State<GameBoard> {
         }
         break;
       case ChessPieceType.queen:
+        // all eight directions: up, down, left, right and 4 diagonals
+        var directions = [
+          [-1, 0], //up
+          [1, 0], //down
+          [0, -1], //left
+          [0, 1], //right
+          [-1, -1], //up left
+          [-1, 1], // up right
+          [1, -1], //down left
+          [1, 1], //down right
+        ];
+
+        for (var direction in directions) {
+          var i = 1;
+          while (true) {
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if (!isInBoard(newRow, newCol)) {
+              break;
+            }
+            if (board[newRow][newCol] != null) {
+              if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+                candidateMoves.add([newRow, newCol]); //KILL
+              }
+              break; //BLOCKED
+            }
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
         break;
       case ChessPieceType.king:
+        // all eight directions: up, down, left, right
+        var directions = [
+          [-1, 0], //up
+          [1, 0], //down
+          [0, -1], //left
+          [0, 1], //right
+          [-1, -1], //up left
+          [-1, 1], // up right
+          [1, -1], //down left
+          [1, 1], //down right
+        ];
+
+        for (var direction in directions) {
+          var newRow = row + direction[0];
+          var newCol = col + direction[1];
+          if (!isInBoard(newRow, newCol)) {
+            continue;
+          }
+          if (board[newRow][newCol] != null) {
+            if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+              candidateMoves.add([newRow, newCol]); //KILL
+            }
+            break; //BLOCKED
+          }
+          candidateMoves.add([newRow, newCol]);
+        }
         break;
       default:
     }
@@ -255,6 +343,8 @@ class _GameBoardState extends State<GameBoard> {
     return candidateMoves;
   }
 
+
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
